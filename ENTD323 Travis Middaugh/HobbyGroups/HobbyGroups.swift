@@ -1,10 +1,3 @@
-//
-//  HobbyGroups.swift
-//  ENTD323 Travis Middaugh
-//
-//  Created by Travis on 2/23/26.
-//
-
 import UIKit
 
 class HobbyGroups: UITableViewController {
