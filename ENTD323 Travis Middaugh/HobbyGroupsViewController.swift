@@ -1,17 +1,38 @@
 import UIKit
 
-class HobbyGroupsViewController: UIViewController, UITableViewDataSource {
+class HobbyGroupsViewController: UIViewController{
+    
+    let tableView: UITableView = {
+        let HobbyGroupTableView = UITableView()
+        HobbyGroupTableView.translatesAutoresizingMaskIntoConstraints = false
+        HobbyGroupTableView.allowsSelection = true
+        HobbyGroupTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        return HobbyGroupTableView
+    }()
     
     var hobbyProjects = ["MTG Life Counting Website", "Learn to play the piano", "Build this app"]
-    
-    @IBOutlet weak var HobbyGroupsTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Hobby Projects"
-        HobbyGroupsTableView.dataSource = self
+        view.backgroundColor = .white
+        buildTableView()
     }
     
+    func buildTableView (){
+        view.addSubview(tableView)
+        tableView.dataSource = self
+        tableView.delegate = self
+        
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor)
+        ])
+    }
+    
+    /*
     @IBAction func addItem(_ sender: Any) {
         let container = UIView(frame: CGRect(x: 37.5, y: 125, width: 325, height: 130))
         container.layer.borderWidth = 0.5
@@ -33,7 +54,7 @@ class HobbyGroupsViewController: UIViewController, UITableViewDataSource {
         cancelBTN.layer.borderColor = UIColor.lightGray.cgColor
         container.addSubview(cancelBTN)
         
-        let addBTN = UIButton(frame: CGRect(x: 210, y: 85, width: 100, height: 30))
+        let addBTN = UIButton(frame: CGRect(x: 210, y: 85, width: 100, height: 30), primaryAction: addNewHobby)
         addBTN.backgroundColor = UIColor.systemMint
         addBTN.setTitle("Add", for: .normal)
         addBTN.layer.cornerRadius = 10
@@ -42,8 +63,12 @@ class HobbyGroupsViewController: UIViewController, UITableViewDataSource {
         container.addSubview(addBTN)
         
         view.addSubview(container)
-    }
+        
+    }*/
     
+}
+
+extension HobbyGroupsViewController: UITableViewDataSource, UITableViewDelegate{
     // Returns the number of row based on the amount of rows in out hobbies array
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return hobbyProjects.count
@@ -51,9 +76,19 @@ class HobbyGroupsViewController: UIViewController, UITableViewDataSource {
     
     // Configures and returns each cell
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = HobbyGroupsTableView.dequeueReusableCell(withIdentifier: "HobbyProjectsCell", for:indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for:indexPath)
         cell.textLabel?.text = hobbyProjects[indexPath.row]
+        cell.accessoryType = .disclosureIndicator
         return cell
     }
     
+    // Load the individual hobby project view contoller
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        navigationController?.pushViewController(HobbyProjectViewController(hobbyProject: hobbyProjects[indexPath.row]), animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+#Preview{
+    HobbyGroupsViewController()
 }

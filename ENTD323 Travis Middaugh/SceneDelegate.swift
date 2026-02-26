@@ -7,14 +7,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
-        window = UIWindow(windowScene: windowScene)
-        let storyboardName = "HobbyGroups"
-        let storyboard = UIStoryboard(name: storyboardName, bundle: nil)
-        if let initialViewController = storyboard.instantiateInitialViewController() {
-            window?.rootViewController = initialViewController
+        window = UIWindow(frame: windowScene.coordinateSpace.bounds)
+        window?.windowScene = windowScene
+        let rootVc = HobbyGroupsViewController()
+        let navigationController = UINavigationController(rootViewController: rootVc)
+        window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
     }
-            window?.makeKeyAndVisible()
-}
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
