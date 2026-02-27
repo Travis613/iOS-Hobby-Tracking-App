@@ -51,7 +51,10 @@ class HobbyGroupsViewController: UIViewController{
         inputbox.backgroundColor = UIColor.white
         container.addSubview(inputbox)
         
-        let cancelBTN = UIButton(frame: CGRect(x: 10, y: 85, width: 100, height: 30))
+        let cancelBTN = UIButton(frame: CGRect(x: 10, y: 85, width: 100, height: 30), primaryAction: UIAction(title: "Tap Me", handler: { action in
+            container.removeFromSuperview()
+        }))
+        
         cancelBTN.backgroundColor = UIColor.systemRed
         cancelBTN.setTitle("Cancel", for: .normal)
         cancelBTN.layer.cornerRadius = 10
