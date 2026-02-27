@@ -59,7 +59,13 @@ class HobbyGroupsViewController: UIViewController{
         cancelBTN.layer.borderColor = UIColor.lightGray.cgColor
         container.addSubview(cancelBTN)
         
-        let addBTN = UIButton(frame: CGRect(x: 210, y: 85, width: 100, height: 30))
+        let addBTN = UIButton(frame: CGRect(x: 210, y: 85, width: 100, height: 30), primaryAction: UIAction(title: "Tap Me", handler: { action in
+            let newHobby: String = inputbox.text!
+            self.hobbyProjects.append(newHobby)
+            self.tableView.reloadData()
+            container.removeFromSuperview()
+        }))
+        
         addBTN.backgroundColor = UIColor.systemMint
         addBTN.setTitle("Add", for: .normal)
         addBTN.layer.cornerRadius = 10
@@ -92,8 +98,4 @@ extension HobbyGroupsViewController: UITableViewDataSource, UITableViewDelegate{
         navigationController?.pushViewController(HobbyProjectViewController(hobbyProject: hobbyProjects[indexPath.row]), animated: true)
         tableView.deselectRow(at: indexPath, animated: true)
     }
-}
-
-#Preview{
-    HobbyGroupsViewController()
 }
