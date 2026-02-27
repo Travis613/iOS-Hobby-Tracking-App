@@ -15,6 +15,7 @@ class HobbyGroupsViewController: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItem))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editItem))
         title = "Hobby Projects"
         view.backgroundColor = .white
         buildTableView()
@@ -31,6 +32,10 @@ class HobbyGroupsViewController: UIViewController{
             tableView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor)
         ])
+    }
+    
+    @objc func editItem(_ sender: Any) {
+        print("I have been clikced")
     }
     
     @objc func addItem(_ sender: Any) {
