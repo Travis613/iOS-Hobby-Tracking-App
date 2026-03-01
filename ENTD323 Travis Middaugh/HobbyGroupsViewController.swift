@@ -1,6 +1,6 @@
 import UIKit
 
-class HobbyGroupsViewController: UIViewController{
+class HobbyGroupsViewController: UIViewController {
     
     let tableView: UITableView = {
         let HobbyGroupTableView = UITableView()
@@ -12,16 +12,34 @@ class HobbyGroupsViewController: UIViewController{
     
     var hobbyProjects: [String] = []
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addItem))
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(editItem))
-        title = "Hobby Projects"
-        view.backgroundColor = .white
-        buildTableView()
+    var fileURL: URL {
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return documents.appendingPathComponent("hobbyProjects.json")
     }
     
-    func buildTableView (){
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(addItem)
+        )
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .edit,
+            target: self,
+            action: #selector(editItem)
+        )
+        
+        title = "Hobby Projects"
+        view.backgroundColor = .white
+        
+        buildTableView()
+        loadFromFile()
+    }
+
+    func buildTableView() {
         view.addSubview(tableView)
         tableView.dataSource = self
         tableView.delegate = self
@@ -34,8 +52,28 @@ class HobbyGroupsViewController: UIViewController{
         ])
     }
     
+    
+    
+    func saveToFile() {
+        do {
+            let data = try JSONEncoder().encode(hobbyProjects)
+            try data.write(to: fileURL)
+        } catch {
+            print("Error saving file:", error)
+        }
+    }
+    
+    func loadFromFile() {
+        do {
+            let data = try Data(contentsOf: fileURL)
+            hobbyProjects = try JSONDecoder().decode([String].self, from: data)
+        } catch {
+            print("No existing file found (first launch).")
+        }
+    }
+    
     @objc func editItem(_ sender: Any) {
-        print("I have been clikced")
+        tableView.setEditing(!tableView.isEditing, animated: true)
     }
     
     @objc func addItem(_ sender: Any) {
@@ -48,55 +86,73 @@ class HobbyGroupsViewController: UIViewController{
         let inputbox = UITextField(frame: CGRect(x: 10, y: 10, width: 300, height: 50))
         inputbox.placeholder = "Add A New Hobby Project"
         inputbox.borderStyle = .roundedRect
-        inputbox.backgroundColor = UIColor.white
         container.addSubview(inputbox)
         
-        let cancelBTN = UIButton(frame: CGRect(x: 10, y: 85, width: 100, height: 30), primaryAction: UIAction(title: "Tap Me", handler: { action in
+        let cancelBTN = UIButton(frame: CGRect(x: 10, y: 85, width: 100, height: 30), primaryAction: UIAction { _ in
             container.removeFromSuperview()
-        }))
+        })
         
-        cancelBTN.backgroundColor = UIColor.systemRed
+        cancelBTN.backgroundColor = .systemRed
         cancelBTN.setTitle("Cancel", for: .normal)
         cancelBTN.layer.cornerRadius = 10
-        cancelBTN.layer.borderWidth = 0.5
-        cancelBTN.layer.borderColor = UIColor.lightGray.cgColor
         container.addSubview(cancelBTN)
         
-        let addBTN = UIButton(frame: CGRect(x: 210, y: 85, width: 100, height: 30), primaryAction: UIAction(title: "Tap Me", handler: { action in
-            let newHobby: String = inputbox.text!
+        let addBTN = UIButton(frame: CGRect(x: 210, y: 85, width: 100, height: 30), primaryAction: UIAction { _ in
+            
+            guard let newHobby = inputbox.text, !newHobby.isEmpty else { return }
+            
             self.hobbyProjects.append(newHobby)
+            self.saveToFile()
             self.tableView.reloadData()
             container.removeFromSuperview()
-        }))
+        })
         
-        addBTN.backgroundColor = UIColor.systemMint
+        addBTN.backgroundColor = .systemMint
         addBTN.setTitle("Add", for: .normal)
         addBTN.layer.cornerRadius = 10
-        addBTN.layer.borderWidth = 0.5
-        addBTN.layer.borderColor = UIColor.lightGray.cgColor
         container.addSubview(addBTN)
         
         view.addSubview(container)
-        
     }
-    
 }
 
-extension HobbyGroupsViewController: UITableViewDataSource, UITableViewDelegate{
+extension HobbyGroupsViewController: UITableViewDataSource, UITableViewDelegate {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return hobbyProjects.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for:indexPath)
+    func tableView(_ tableView: UITableView,
+                   cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.textLabel?.text = hobbyProjects[indexPath.row]
         cell.textLabel?.font = UIFont.systemFont(ofSize: 18.0)
         cell.accessoryType = .disclosureIndicator
         return cell
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        navigationController?.pushViewController(HobbyProjectViewController(hobbyProject: hobbyProjects[indexPath.row]), animated: true)
+    func tableView(_ tableView: UITableView,
+                   didSelectRowAt indexPath: IndexPath) {
+        
+        navigationController?.pushViewController(
+            HobbyProjectViewController(
+                hobbyProject: hobbyProjects[indexPath.row]
+            ),
+            animated: true
+        )
+        
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView,
+                   commit editingStyle: UITableViewCell.EditingStyle,
+                   forRowAt indexPath: IndexPath) {
+        
+        if editingStyle == .delete {
+            hobbyProjects.remove(at: indexPath.row)
+            saveToFile()
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
     }
 }
